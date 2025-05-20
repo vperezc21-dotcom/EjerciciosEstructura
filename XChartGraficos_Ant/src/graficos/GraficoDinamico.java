@@ -2,7 +2,7 @@ package graficos;
 
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
-import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.XChartPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,22 +13,28 @@ public class GraficoDinamico extends JFrame {
     private final JTextField campoValor;
     private final JButton btnAgregar;
     private final Map<String, Integer> datos = new LinkedHashMap<>();
+    private final JPanel panelGrafico;
+    private XChartPanel<CategoryChart> chartPanel;
 
     public GraficoDinamico() {
         setTitle("agregar notas");
-        setSize(500, 120);
-        setLayout(new GridLayout(3, 2));
+        setSize(600, 500);
+        setLayout(new BorderLayout());
 
-        add(new JLabel("materia:"));
+        JPanel panelEntrada = new JPanel(new GridLayout(3, 2));
+        panelEntrada.add(new JLabel("materia:"));
         campoCategoria = new JTextField();
-        add(campoCategoria);
-
-        add(new JLabel("notas:"));
+        panelEntrada.add(campoCategoria);
+        panelEntrada.add(new JLabel("notas:"));
         campoValor = new JTextField();
-        add(campoValor);
+        panelEntrada.add(campoValor);
+        btnAgregar = new JButton("insertar grafico");
+        panelEntrada.add(btnAgregar);
 
-        btnAgregar = new JButton("ver grafico");
-        add(btnAgregar);
+        add(panelEntrada, BorderLayout.NORTH);
+
+        panelGrafico = new JPanel(new BorderLayout());
+        add(panelGrafico, BorderLayout.CENTER);
 
         btnAgregar.addActionListener(e -> mostrarGrafico());
 
@@ -42,7 +48,7 @@ public class GraficoDinamico extends JFrame {
 
         try {
             valor = Integer.parseInt(campoValor.getText());
-            if (valor < 0 || valor > 1000) {
+            if (valor < 0 || valor > 100) {
                 JOptionPane.showMessageDialog(this, "ingresa bien la nota");
                 return;
             }
@@ -58,8 +64,7 @@ public class GraficoDinamico extends JFrame {
 
         datos.put(categoria, valor);
 
-        CategoryChart chart;
-        chart = new CategoryChartBuilder()
+        CategoryChart chart = new CategoryChartBuilder()
                 .width(400)
                 .height(400)
                 .title("agregar notas")
@@ -69,11 +74,17 @@ public class GraficoDinamico extends JFrame {
 
         chart.addSeries("notas", new ArrayList<>(datos.keySet()), new ArrayList<>(datos.values()));
 
-        new Thread(() -> new SwingWrapper<>(chart).displayChart()).start();
+        if (chartPanel != null) {
+            panelGrafico.remove(chartPanel);
+        }
+
+        chartPanel = new XChartPanel<>(chart);
+        panelGrafico.add(chartPanel, BorderLayout.CENTER);
+        panelGrafico.revalidate();
+        panelGrafico.repaint();
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(GraficoDinamico::new);
     }
 }
- 
