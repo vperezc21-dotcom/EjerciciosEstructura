@@ -1,5 +1,0 @@
-<project name="XChartGraficos" default="run" basedir=".">
-    <description>Builds, tests, and runs the project XChartGraficos.</description>
-
-    <import file="nbproject/build-impl.xml"/>
-</project>
